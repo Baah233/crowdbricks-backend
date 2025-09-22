@@ -17,5 +17,5 @@ This repository contains the **backend** built with Laravel and MySQL.
 
 ### 1. Clone the repo
 ```bash
-git clone https://github.com/YOUR-USERNAME/crowdbricks-backend.git
+git clone https://github.com/Baah233/crowdbricks-backend.git
 cd crowdbricks-backend
