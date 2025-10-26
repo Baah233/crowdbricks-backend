@@ -13,10 +13,21 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            
+            // Split name into first and last
+            $table->string('first_name');
+            $table->string('last_name');
+           
+
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
+
             $table->string('password');
+
+            // Optional fields for national identity and user type
+            $table->string('ghana_card')->nullable();
+            $table->enum('user_type', ['user', 'developer', 'investor', 'admin'])->default('user');
+
             $table->rememberToken();
             $table->timestamps();
         });
