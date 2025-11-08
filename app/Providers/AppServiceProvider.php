@@ -4,6 +4,10 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
+use App\Models\Investment;
+use App\Models\Dividend;
+use App\Observers\InvestmentObserver;
+use App\Observers\DividendObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -12,6 +16,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Register observers for cache invalidation
+        Investment::observe(InvestmentObserver::class);
+        Dividend::observe(DividendObserver::class);
+
         // Load web routes (already loaded by default)
         require base_path('routes/web.php');
 

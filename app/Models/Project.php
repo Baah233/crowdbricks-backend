@@ -2,74 +2,74 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Project extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
         'user_id',
         'title',
+        'slug',
         'short_description',
-        'full_description',
-        'target_amount',
-        'raised_amount',
-        'category',
-        'location',
-        'type',
+        'description',
         'minimum_investment',
+        'target_funding',
         'expected_yield',
         'timeline',
+        'location',
+        'categories',
+        'tags',
+        'approval_status',
         'funding_status',
-        'developer_name',
-        'developer_verified',
-        'developer_rating',
-        'developer_completed_projects',
-        'image_path',
-        'slug',
-        'status',
+        'current_funding',
+        'investors',
     ];
 
-    // Auto-generate slug when title is set
-    protected static function boot()
-    {
-        parent::boot();
+    protected $casts = [
+        'categories' => 'array',
+        'tags' => 'array',
+    ];
 
-        static::creating(function ($project) {
-            if (empty($project->slug)) {
-                $project->slug = Str::slug($project->title);
-            }
-        });
-    }
+    protected $appends = ['image_url'];
 
-    /**
-     * Relationship: A project belongs to a user (owner)
-     */
-    public function owner()
+    public function developer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    /**
-     * Relationship: A project can have many pledges
-     */
-    public function pledges()
+    public function images(): HasMany
     {
-        return $this->hasMany(Pledge::class);
+        return $this->hasMany(ProjectImage::class)->orderBy('order');
+    }
+
+    public function documents(): HasMany
+    {
+        return $this->hasMany(ProjectDocument::class);
+    }
+
+    public function milestones(): HasMany
+    {
+        return $this->hasMany(Milestone::class)->orderBy('order');
+    }
+
+    public function updates(): HasMany
+    {
+        return $this->hasMany(ProjectUpdate::class)->latest();
+    }
+
+    public function investments(): HasMany
+    {
+        return $this->hasMany(Investment::class);
     }
 
     /**
-     * Accessor: Get full image URL
+     * Get the first image URL for the project
      */
-    public function getImageUrlAttribute()
+    public function getImageUrlAttribute(): ?string
     {
-        if ($this->image_path) {
-            return asset('storage/' . $this->image_path);
-        }
-
-        return asset('images/default-project.jpg'); // fallback image
+        $firstImage = $this->images()->first();
+        return $firstImage ? $firstImage->url : null;
     }
-}
+};

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat Test - Visitor Mode</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        #chat-container {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 300px;
+            overflow-y: auto;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .user {
+            background: #e3f2fd;
+            text-align: right;
+        }
+        .assistant {
+            background: #f5f5f5;
+        }
+        #input-container {
+            display: flex;
+            gap: 10px;
+        }
+        #message-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #1976D2;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <h1>🤖 Crowdbricks AI Chat - Visitor Test</h1>
+    <p>This tests the AI chat as an unauthenticated visitor (no login required).</p>
+    
+    <div id="chat-container"></div>
+    
+    <div id="input-container">
+        <input type="text" id="message-input" placeholder="Ask a question..." />
+        <button id="send-btn">Send</button>
+    </div>
+
+    <script>
+        const chatContainer = document.getElementById('chat-container');
+        const messageInput = document.getElementById('message-input');
+        const sendBtn = document.getElementById('send-btn');
+        
+        let messages = [
+            {
+                id: 1,
+                role: 'assistant',
+                text: '👋 Hi! I\'m Crowdbricks Assistant. Ask me about investing, returns, or the platform!'
+            }
+        ];
+
+        function renderMessages() {
+            chatContainer.innerHTML = messages.map(msg => `
+                <div class="message ${msg.role}">
+                    <strong>${msg.role === 'user' ? 'You' : 'Assistant'}:</strong><br>
+                    ${msg.text}
+                </div>
+            `).join('');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const text = messageInput.value.trim();
+            if (!text) return;
+
+            // Add user message
+            messages.push({
+                id: Date.now(),
+                role: 'user',
+                text: text
+            });
+            renderMessages();
+            messageInput.value = '';
+            sendBtn.disabled = true;
+
+            try {
+                const response = await fetch('http://crowdbricks-backend.test/api/v1/ai/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ messages })
+                });
+
+                const data = await response.json();
+                
+                messages.push({
+                    id: Date.now(),
+                    role: 'assistant',
+                    text: data.reply || data.message || 'Sorry, no response.'
+                });
+                renderMessages();
+            } catch (error) {
+                console.error('Error:', error);
+                messages.push({
+                    id: Date.now(),
+                    role: 'assistant',
+                    text: '⚠️ Error connecting to AI service.'
+                });
+                renderMessages();
+            } finally {
+                sendBtn.disabled = false;
+                messageInput.focus();
+            }
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        renderMessages();
+    </script>
+</body>
+</html>

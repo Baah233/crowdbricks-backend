@@ -14,6 +14,17 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // ✅ Enable Laravel's default CORS handler
         $middleware->append(\Illuminate\Http\Middleware\HandleCors::class);
+        
+        // ✅ Performance monitoring for API routes
+        $middleware->appendToGroup('api', \App\Http\Middleware\PerformanceMonitor::class);
+        
+        // ✅ Audit logging for all developer actions
+        $middleware->appendToGroup('api', \App\Http\Middleware\AuditLog::class);
+        
+        // ✅ Rate limiting aliases
+        $middleware->alias([
+            'audit.log' => \App\Http\Middleware\AuditLog::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

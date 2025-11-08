@@ -43,6 +43,18 @@ class ProjectFactory extends Factory
             'status' => 'published',
             'is_active' => true,
             'image_path' => 'projects/default.jpg',
+            'location' => $this->faker->city(),
+            'minimum_investment' => $this->faker->numberBetween(1000, 10000),
+            'expected_yield' => $this->faker->randomFloat(2, 5, 20),
+            'timeline' => $this->faker->randomElement(['6 months', '12 months', '18 months']),
+            'funding_status' => $this->faker->randomElement(['open', 'closed', 'pending']),
+            'developer_name' => $developer->name,
+            'developer_verified' => $this->faker->boolean(80),
+            'developer_rating' => $this->faker->randomFloat(2, 3, 5),
+            'developer_completed_projects' => $this->faker->numberBetween(0, 50),
+            
+            
+
         ];
     }
 }
