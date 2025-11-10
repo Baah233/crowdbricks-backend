@@ -5,14 +5,14 @@ return [
 
     'allowed_methods' => ['*'],
 
-  'allowed_origins' => [
-    'http://localhost:5173',
-    'http://crowdbricks-frontend.test',
-    // Production origins (uncomment when deploying)
-    // 'https://crowdbricks.io',
-    // 'https://app.crowdbricks.io',
-    // 'https://www.crowdbricks.io',
-],
+  'allowed_origins' => array_filter(array_merge(
+        [
+            'http://localhost:5173',
+            'http://localhost:3000',
+            'http://crowdbricks-frontend.test',
+        ],
+        explode(',', env('CORS_ALLOWED_ORIGINS', ''))
+    )),
 
     'allowed_origins_patterns' => [],
 
